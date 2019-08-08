@@ -97,7 +97,8 @@ impl Registers{
             _ => {}
         };
     }
-    pub fn set_flags(&mut self,r:u8,c:bool){
+    pub fn set_flags(&mut self,r:u8,c:bool,h:bool){
+        self.F.set_aux(h);
         self.F.set_carry(c);
         self.F.set_zero(r == 0);
         self.F.set_parity(r.count_ones() & 1 == 0);
