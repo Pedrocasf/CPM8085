@@ -11,6 +11,7 @@ macro_rules! getLsb{
 }
 
 pub struct CPU{
+    i:u8,
     lut:[fn(&mut CPU,&mut [u8]);0x100],
     pub regs:Registers,
 }
@@ -18,27 +19,36 @@ pub struct CPU{
 impl CPU{
     pub fn new()->CPU{
         CPU{
+            i:0,
             lut:[CPU::fault;0x100],
             regs:Registers::default(),
         }
     }
+    fn get_16(&self, mem:&[u8])->u16{
+        let lb = mem[self.regs.PC as usize +1];
+        let hb = mem[self.regs.PC as usize +2];
+        (hb as u16) << 8 | lb as u16
+    }
+    fn pop_16(&mut self, mem:&[u8])->u16{
+        let lb = mem[self.regs.SP as usize];
+        let hb = mem[self.regs.SP as usize +1];
+        self.regs.SP+=2;
+        (hb as u16) << 8 | lb as u16
+    }
     pub fn next(&mut self,mem:&mut [u8]){
         print!("PC: {:04X} ", self.regs.PC);
-        self.lut[mem[self.regs.PC as usize] as usize](self,mem);
+        self.i = mem[self.regs.PC as usize];
+        self.lut[self.i as usize](self,mem);
         println!(" {:X?}",self.regs);
     }
     fn jmp(&mut self,mem:&mut [u8]){
-        let lb = mem[self.regs.PC as usize +1];
-        let hb = mem[self.regs.PC as usize +2];
-        let addr = (hb as u16) << 8 | lb as u16;
+        let addr = self.get_16(mem);
         self.regs.PC = addr;
         print!("JMP {:04X}",addr);
     }
     fn lxi(&mut self,mem:&mut [u8]){
-        let lb = mem[self.regs.PC as usize +1];
-        let hb = mem[self.regs.PC as usize +2];
-        let val = (hb as u16) << 8 | lb as u16;
-        self.regs.setRP(val,mem[self.regs.PC as usize]);
+        let val = self.get_16(mem);
+        self.regs.setRP(val,self.i);
         self.regs.PC+=3;
         print!("LXI {:04X}", val);
     }
@@ -51,10 +61,8 @@ impl CPU{
     }
     fn jccc(&mut self,mem:&mut [u8]){
         let mut addr = 0;
-        if self.regs.cond(mem[self.regs.PC as usize]){
-            let lb = mem[self.regs.PC as usize +1];
-            let hb = mem[self.regs.PC as usize +2];
-            addr = (hb as u16) << 8 | lb as u16;
+        if self.regs.cond(self.i){
+            addr = self.get_16(mem);
             self.regs.PC = addr;
         }else{
             self.regs.PC+=3;
@@ -73,14 +81,12 @@ impl CPU{
         mem[self.regs.SP as usize -1] = (self.regs.PC >> 8) as u8;
         mem[self.regs.SP as usize -2] = self.regs.PC as u8;
         self.regs.SP-=2;
-        let lb = mem[self.regs.PC as usize +1];
-        let hb = mem[self.regs.PC as usize +2];
-        let addr = (hb as u16) << 8 | lb as u16;
+        let addr = self.get_16(mem);
         self.regs.PC = addr;
         print!("CALL {:04X}",addr);
     }
     fn push(&mut self,mem:&mut [u8]){
-        let rp = self.regs.getRP(mem[self.regs.PC as usize]);
+        let rp = self.regs.getRP(self.i);
         mem[self.regs.SP as usize -1] = (rp >> 8) as u8;
         mem[self.regs.SP as usize -2] = rp as u8;
         self.regs.SP-=2;
@@ -96,7 +102,7 @@ impl CPU{
         print!("XCHG {:04X}", de);
     }
     fn mvi(&mut self,mem:&mut [u8]){
-        self.regs.setD(mem[self.regs.PC as usize], mem, mem[self.regs.PC as usize +1]);
+        self.regs.setD(self.i, mem, mem[self.regs.PC as usize +1]);
         self.regs.PC+=2;
         print!("MVI {:02X}", mem[self.regs.PC as usize +1]);
     }
@@ -105,46 +111,38 @@ impl CPU{
         print!("NOP {:04X}", self.regs.PC);
     }
     fn fault(&mut self,mem:&mut [u8]){
-        panic!("regs:{:x?}, instr:{:08b}, {:02x}",self.regs, mem[self.regs.PC as usize],mem[self.regs.PC as usize])
+        panic!("regs:{:x?}, instr:{:08b}, {:02x}",self.regs, self.i,self.i)
     }
     fn syscall(&mut self,mem:&mut [u8]){
         CPM::syscall(&CPM(self.regs.C,self.regs.PC),self,mem);
     }
     fn mov(&mut self,mem:&mut [u8]){
-        let s = self.regs.getS(mem[self.regs.PC as usize], mem);
-        self.regs.setD(mem[self.regs.PC as usize], mem, s);
+        let s = self.regs.getS(self.i, mem);
+        self.regs.setD(self.i, mem, s);
         self.regs.PC+=1;
         print!("MOV {:02X}", s);
     }
     fn lda(&mut self,mem:&mut [u8]){
-        let lb = mem[self.regs.PC as usize +1];
-        let hb = mem[self.regs.PC as usize +2];
-        let addr = (hb as u16) << 8 | lb as u16;
+        let addr = self.get_16(mem);
         self.regs.A = mem[addr as usize];
         self.regs.PC+=3;
         print!("LDA {:04X}", addr);
     }
     fn sda(&mut self,mem:&mut [u8]){
-        let lb = mem[self.regs.PC as usize +1];
-        let hb = mem[self.regs.PC as usize +2];
-        let addr = (hb as u16) << 8 | lb as u16;
+        let addr = self.get_16(mem);
         mem[addr as usize] = self.regs.A ;
         self.regs.PC+=3;
         print!("SDA {:04X}", addr);
     }
     fn lhld(&mut self,mem:&mut [u8]){
-        let lb = mem[self.regs.PC as usize +1];
-        let hb = mem[self.regs.PC as usize +2];
-        let addr = ((hb as u16) << 8 | lb as u16) as usize;
+        let addr = self.get_16(mem) as usize;
         let val = (mem[addr+1] as u16) << 8 | mem[addr] as u16;
         self.regs.setRP(val, 0x20);
         self.regs.PC+=3;
         print!("LHLD {:04X}", val);
     }
     fn shld(&mut self,mem:&mut [u8]){
-        let lb = mem[self.regs.PC as usize +1];
-        let hb = mem[self.regs.PC as usize +2];
-        let addr = ((hb as u16) << 8 | lb as u16) as usize;
+        let addr = self.get_16(mem) as usize;
         let val = self.regs.getRP(0x20);
         mem[addr] = val as u8;
         mem[addr+1] = (val >> 8) as u8;
@@ -152,19 +150,19 @@ impl CPU{
         print!("LHLD {:04X}", val);
     }
     fn ldax(&mut self,mem:&mut [u8]){
-        let rp = self.regs.getRP(mem[self.regs.PC as usize]);
+        let rp = self.regs.getRP(self.i);
         self.regs.A = mem[rp as usize];
         self.regs.PC+=1;
         print!("LDAX {:04X}", rp);
     }
     fn stax(&mut self,mem:&mut [u8]){
-        let rp = self.regs.getRP(mem[self.regs.PC as usize]);
+        let rp = self.regs.getRP(self.i);
         mem[rp as usize] = self.regs.A;
         self.regs.PC+=1;
         print!("STAX {:04X}", rp);
     }
     fn add(&mut self,mem:&mut [u8]){
-        let s = self.regs.getS(mem[self.regs.PC as usize], mem);
+        let s = self.regs.getS(self.i, mem);
         let (a,v) = self.regs.A.overflowing_add(s);
         self.regs.set_flags(a, v);
         self.regs.A = a;
@@ -172,7 +170,7 @@ impl CPU{
         print!("ADD {:02X}",s);
     }
     fn adc(&mut self,mem:&mut [u8]){
-        let s = self.regs.getS(mem[self.regs.PC as usize], mem);
+        let s = self.regs.getS(self.i, mem);
         let (a0,v0) = self.regs.A.overflowing_add(s);
         let (a1,v1) = a0.overflowing_add(self.regs.F.get_carry() as u8);
         self.regs.A = a1;
@@ -189,7 +187,7 @@ impl CPU{
         print!("ACI {:02X}",mem[self.regs.PC as usize +1]);
     }
     fn sub(&mut self,mem:&mut [u8]){
-        let s = self.regs.getS(mem[self.regs.PC as usize], mem);
+        let s = self.regs.getS(self.i, mem);
         let (a,v) = self.regs.A.overflowing_sub(s);
         self.regs.set_flags(a, v);
         self.regs.A = a;
@@ -204,7 +202,7 @@ impl CPU{
         print!("SUI {:02X}",mem[self.regs.PC as usize +1]);
     }
     fn sbb(&mut self,mem:&mut [u8]){
-        let s = self.regs.getS(mem[self.regs.PC as usize], mem);
+        let s = self.regs.getS(self.i, mem);
         let (a0,v0) = self.regs.A.overflowing_sub(s);
         let (a1,v1) = a0.overflowing_sub(self.regs.F.get_carry() as u8);
         self.regs.A = a1;
@@ -221,33 +219,33 @@ impl CPU{
         print!("SBI {:02X}",mem[self.regs.PC as usize +1]);
     }
     fn inr(&mut self,mem:&mut [u8]){
-        let r = self.regs.getD(mem[self.regs.PC as usize], mem).wrapping_add(1);
-        self.regs.setD(mem[self.regs.PC as usize], mem, r);
+        let r = self.regs.getD(self.i, mem).wrapping_add(1);
+        self.regs.setD(self.i, mem, r);
         self.regs.set_flags(r, false);
         self.regs.PC+=1;
         print!("INR {:02X}", r);
     }
     fn dcr(&mut self,mem:&mut [u8]){
-        let r = self.regs.getD(mem[self.regs.PC as usize], mem).wrapping_sub(1);
-        self.regs.setD(mem[self.regs.PC as usize], mem, r);
+        let r = self.regs.getD(self.i, mem).wrapping_sub(1);
+        self.regs.setD(self.i, mem, r);
         self.regs.set_flags(r, false);
         self.regs.PC+=1;
         print!("DCR {:02X}", r);
     }
     fn inx(&mut self,mem:&mut [u8]){
-        let rp = self.regs.getRP(mem[self.regs.PC as usize]);
-        self.regs.setRP(rp.wrapping_add(1), mem[self.regs.PC as usize]);
+        let rp = self.regs.getRP(self.i);
+        self.regs.setRP(rp.wrapping_add(1), self.i);
         self.regs.PC+=1;
         print!("INX {:02x}", rp);
     }
     fn dcx(&mut self,mem:&mut [u8]){
-        let rp = self.regs.getRP(mem[self.regs.PC as usize]);
-        self.regs.setRP(rp.wrapping_sub(1), mem[self.regs.PC as usize]);
+        let rp = self.regs.getRP(self.i);
+        self.regs.setRP(rp.wrapping_sub(1), self.i);
         self.regs.PC+=1;
         print!("DCX {:02x}", rp);
     }
     fn dad(&mut self,mem:&mut [u8]){
-        let rp = self.regs.getRP(mem[self.regs.PC as usize]);
+        let rp = self.regs.getRP(self.i);
         let hl = self.regs.getRP(0x20);
         let (hl,v) = hl.overflowing_add(rp);
         self.regs.setRP(hl,0x20);
@@ -259,14 +257,14 @@ impl CPU{
         panic!("DAA");
     }
     fn ana(&mut self,mem:&mut [u8]){
-        let s = self.regs.getS(mem[self.regs.PC as usize], mem);
+        let s = self.regs.getS(self.i, mem);
         self.regs.A&=s;
         self.regs.set_flags(self.regs.A, false);
         self.regs.PC+=1;
         print!("ANA {:02X}",s);
     }
     fn ora(&mut self,mem:&mut [u8]){
-        let s = self.regs.getS(mem[self.regs.PC as usize], mem);
+        let s = self.regs.getS(self.i, mem);
         self.regs.A|=s;
         self.regs.set_flags(self.regs.A, false);
         self.regs.PC+=1;
@@ -279,7 +277,7 @@ impl CPU{
         print!("ORI {:02X}",mem[self.regs.PC as usize +1]);
     }
     fn xra(&mut self,mem:&mut [u8]){
-        let s = self.regs.getS(mem[self.regs.PC as usize], mem);
+        let s = self.regs.getS(self.i, mem);
         self.regs.A^=s;
         self.regs.set_flags(self.regs.A, false);
         self.regs.PC+=1;
@@ -292,7 +290,7 @@ impl CPU{
         print!("XRI {:02X}",mem[self.regs.PC as usize +1]);
     }
     fn cmp(&mut self,mem:&mut [u8]){
-        let s = self.regs.getS(mem[self.regs.PC as usize], mem);
+        let s = self.regs.getS(self.i, mem);
         let (a, v) = self.regs.A.overflowing_sub(s);
         self.regs.set_flags(a,v);
         self.regs.PC+=1;
@@ -350,13 +348,11 @@ impl CPU{
     }
     fn Cccc(&mut self,mem:&mut [u8]){
         let mut addr = 0;
-        if self.regs.cond(mem[self.regs.PC as usize]){
+        if self.regs.cond(self.i){
             mem[self.regs.SP as usize -1] = (self.regs.PC >> 8) as u8;
             mem[self.regs.SP as usize -2] = self.regs.PC as u8;
             self.regs.SP-=2;
-            let lb = mem[self.regs.PC as usize +1];
-            let hb = mem[self.regs.PC as usize +2];
-            addr = (hb as u16) << 8 | lb as u16;
+            addr = self.get_16(mem);
             self.regs.PC = addr;
         }else{
             self.regs.PC+=3;
@@ -364,20 +360,14 @@ impl CPU{
         print!("Cccc {:04X}",addr);
     }
     pub fn ret(&mut self,mem:&mut [u8]){
-        let lb = mem[self.regs.SP as usize];
-        let hb = mem[self.regs.SP as usize +1];
-        self.regs.SP+=2;
-        let addr = (hb as u16) << 8 | lb as u16;
+        let addr = self.pop_16(mem);
         self.regs.PC = addr + 3;
         print!("RET {:04X}",addr);
     }
     fn Rccc(&mut self,mem:&mut [u8]){
         let mut addr = 0;
-        if self.regs.cond(mem[self.regs.PC as usize]){
-            let lb = mem[self.regs.SP as usize];
-            let hb = mem[self.regs.SP as usize +1];
-            self.regs.SP+=2;
-            addr = (hb as u16) << 8 | lb as u16;
+        if self.regs.cond(self.i){
+            addr = self.pop_16(mem);
             self.regs.PC = addr + 3;
         }else{
             self.regs.PC+=1;
@@ -390,11 +380,8 @@ impl CPU{
         self.regs.PC = self.regs.getRP(0x20);
     }
     fn pop(&mut self,mem:&mut [u8]){
-        let lb = mem[self.regs.SP as usize];
-        let hb = mem[self.regs.SP as usize +1];
-        self.regs.SP+=2;
-        let val = (hb as u16) << 8 | lb as u16;
-        self.regs.setRP(val, mem[self.regs.PC as usize]);
+        let val = self.pop_16(mem);
+        self.regs.setRP(val, self.i);
         self.regs.PC+=1;
         print!("POP {:04x}", val);
     }

@@ -12,10 +12,12 @@ impl CPM{
         let off = cpu.regs.getRP(0x10);
         let mut c:char = ' ';
         let mut count = 0;
+        println!("");
         while c != '$'{
             c=mem[off as usize + 3 +count] as char;
             print!("{}",c);
             count +=1;
         }
+        println!("");
     }
 }
