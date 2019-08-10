@@ -115,7 +115,7 @@ impl CPU{
         panic!("regs:{:x?}, instr:{:08b}, {:02x}",self.regs, self.i,self.i)
     }
     fn syscall(&mut self,mem:&mut [u8]){
-        CPM::syscall(&CPM(self.regs.C,self.regs.PC),self,mem);
+        CPM::syscall(&CPM(self.regs.C),self,mem);
     }
     fn mov(&mut self,mem:&mut [u8]){
         let s = self.regs.getS(self.i, mem);
@@ -194,7 +194,7 @@ impl CPU{
     fn sub(&mut self,mem:&mut [u8]){
         let s = self.regs.getS(self.i, mem);
         let (a,v) = self.regs.A.overflowing_sub(s);
-        let h = ((self.regs.A & 0xF) - (s & 0xF))& 0x10 == 0x10;
+        let h = (self.regs.A & 0xF).wrapping_sub(s & 0xF)& 0x10 == 0x10;
         self.regs.set_flags(a, v, h);
         self.regs.A = a;
         self.regs.PC+=1;
@@ -213,17 +213,17 @@ impl CPU{
         let s = self.regs.getS(self.i, mem);
         let (a0,v0) = self.regs.A.overflowing_sub(s);
         let (a1,v1) = a0.overflowing_sub(self.regs.F.get_carry() as u8);
-        let h = ((self.regs.A & 0xF) - (s & 0xF) - self.regs.F.get_carry() as u8)& 0x10 == 0x10;
+        let h = (self.regs.A & 0xF).wrapping_sub(s & 0xF).wrapping_sub(self.regs.F.get_carry() as u8)& 0x10 == 0x10;
         self.regs.A = a1;
         self.regs.set_flags(self.regs.A, v0|v1,h);
         self.regs.PC+=1;
         print!("SBB {:02X}",mem[self.regs.PC as usize +1]);
     }
     fn sbi(&mut self,mem:&mut [u8]){
-        let s = mem[self.regs.PC as usize +1]
+        let s = mem[self.regs.PC as usize +1];
         let (a0,v0) = self.regs.A.overflowing_sub(s);
         let (a1,v1) = a0.overflowing_sub(self.regs.F.get_carry() as u8);
-        let h = ((self.regs.A & 0xF) - (s & 0xF) - self.regs.F.get_carry() as u8)& 0x10 == 0x10;
+        let h = (self.regs.A & 0xF).wrapping_sub(s & 0xF).wrapping_sub(self.regs.F.get_carry() as u8)& 0x10 == 0x10;
         self.regs.A = a1;
         self.regs.set_flags(self.regs.A, v0|v1,h);
         self.regs.PC+=2;

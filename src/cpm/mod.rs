@@ -1,5 +1,5 @@
 use super::CPU;
-pub struct CPM(pub u8, pub u16);
+pub struct CPM(pub u8);
 impl CPM{
     pub fn syscall(&self,cpu:&mut CPU, mem:&mut [u8]){
         match self.0{
