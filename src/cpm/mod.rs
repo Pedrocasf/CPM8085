@@ -6,7 +6,7 @@ impl CPM{
         match self.0{
             0x09 => self.c_writestr(cpu,mem),
             0x02 => self.c_write(cpu,mem),
-            _ => panic!("regs:{:x?}, instr:{:08b}, {:02x}",cpu.regs, mem[cpu.regs.PC as usize],mem[cpu.regs.PC as usize]),
+            _ => panic!("regs:{:x?}, instr:{:08b}, {:02x}",cpu.regs, mem[cpu.regs.pc as usize],mem[cpu.regs.pc as usize]),
         }
         cpu.ret(mem);
     }
@@ -23,7 +23,7 @@ impl CPM{
         println!("");
     }
     fn c_write(&self, cpu:&mut CPU, _mem:&mut [u8]){
-        let c = cpu.regs.E as char;
+        let c = cpu.regs.e as char;
         println!("{}", c);
     }
 }
