@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
+        <title>cpm8080</title>
+    </head>
+    <body>
+        <select id="roms">
+        </select>
+        <button id="start">START</button>
+        <button id="stop">STOP</button>
+        <canvas id='canvas' width='64' height='32'
+            style='transform: scale(11); transform-origin: top left; background-color:black; image-rendering: pixelated;
+            image-rendering: crisp-edges;'></canvas>
+        <script type="module">
+            import { run as ch8_run, default as init } from './pkg/chip8.js';
+            const ROMS = [
+                "test",
+                "bon",
+                "MAZE",
+                
+            ];
+            let select = document.getElementById("roms");
+            ROMS.forEach( rom => { 
+                var option = document.createElement("option");
+                option.text = rom;
+                option.val = rom;
+                select.add(option);
+            }) 
+            async function start(){
+                await init('./pkg/chip8_bg.wasm');
+            }
+            start();
+            async function run (val){
+                fetch('./roms/'+val)
+                    .then(function(response){
+                        return response.arrayBuffer();
+                    }).then(function(buffer){
+                        let array = new Uint8Array(buffer);
+                        console.log(array);
+                        ch8_run(array);
+                    });
+            }
+            document.getElementById("start").addEventListener("mousedown",function(){
+                run(select.value);
+            });
+        </script>     
+    </body>
+</html>
