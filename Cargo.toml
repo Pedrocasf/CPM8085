@@ -6,4 +6,49 @@ edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+crate-type = ["cdylib", "rlib"]
+
 [dependencies]
+wasm-bindgen = { version = "*", optional = true}
+wee_alloc = { version = "*", optional = true}
+js-sys = { version = "*", optional = true}
+wasm-bindgen-futures = { version = "*", optional = true}
+futures = { version = "*", optional = true}
+
+[dependencies.web-sys]
+version = "*"
+optional = true
+features = [
+  'KeyboardEvent',
+  'MouseEvent',
+  'ImageData',
+  'Window',
+  'console',
+  'HtmlCanvasElement',
+  'HtmlButtonElement',
+  'CanvasRenderingContext2d',
+  'Document',
+  'Element',
+  'CssStyleDeclaration',
+  'HtmlElement',
+  'EventTarget',
+  'Node',
+]
+
+[dev-dependencies]
+wasm-bindgen-test = { version = "*", optional = true}
+
+[profile.release]
+opt-level = "s"
+debug = false
+
+[features]
+webp = [
+    "dep:wasm-bindgen",
+    "dep:wee_alloc",
+    "dep:js-sys",
+    "dep:wasm-bindgen-futures",
+    "dep:futures",
+    "dep:web-sys"
+]
