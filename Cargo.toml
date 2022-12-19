@@ -1,5 +1,5 @@
 [package]
-name = "CPM8085"
+name = "cpm8080"
 version = "0.1.0"
 authors = ["Pedrocasf <pedrostarling2000@gmail.com>"]
 edition = "2018"

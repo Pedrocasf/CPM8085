@@ -1,0 +1,238 @@
+warning: unused variable: `mem`
+   --> src/cpu/mod.rs:114:24
+    |
+114 |     fn fault(&mut self,mem:&mut [u8]){
+    |                        ^^^ help: if this is intentional, prefix it with an underscore: `_mem`
+    |
+    = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `mem`
+   --> src/cpu/mod.rs:250:22
+    |
+250 |     fn inx(&mut self,mem:&mut [u8]){
+    |                      ^^^ help: if this is intentional, prefix it with an underscore: `_mem`
+
+warning: unused variable: `mem`
+   --> src/cpu/mod.rs:256:22
+    |
+256 |     fn dcx(&mut self,mem:&mut [u8]){
+    |                      ^^^ help: if this is intentional, prefix it with an underscore: `_mem`
+
+warning: unused variable: `mem`
+   --> src/cpu/mod.rs:262:22
+    |
+262 |     fn dad(&mut self,mem:&mut [u8]){
+    |                      ^^^ help: if this is intentional, prefix it with an underscore: `_mem`
+
+warning: unused variable: `mem`
+   --> src/cpu/mod.rs:271:22
+    |
+271 |     fn daa(&mut self,mem:&mut [u8]){
+    |                      ^^^ help: if this is intentional, prefix it with an underscore: `_mem`
+
+warning: unused variable: `mem`
+   --> src/cpu/mod.rs:323:22
+    |
+323 |     fn rlc(&mut self,mem:&mut [u8]){
+    |                      ^^^ help: if this is intentional, prefix it with an underscore: `_mem`
+
+warning: unused variable: `mem`
+   --> src/cpu/mod.rs:330:22
+    |
+330 |     fn rrc(&mut self,mem:&mut [u8]){
+    |                      ^^^ help: if this is intentional, prefix it with an underscore: `_mem`
+
+warning: unused variable: `mem`
+   --> src/cpu/mod.rs:337:22
+    |
+337 |     fn ral(&mut self,mem:&mut [u8]){
+    |                      ^^^ help: if this is intentional, prefix it with an underscore: `_mem`
+
+warning: unused variable: `mem`
+   --> src/cpu/mod.rs:344:22
+    |
+344 |     fn rar(&mut self,mem:&mut [u8]){
+    |                      ^^^ help: if this is intentional, prefix it with an underscore: `_mem`
+
+warning: unused variable: `mem`
+   --> src/cpu/mod.rs:351:22
+    |
+351 |     fn cma(&mut self,mem:&mut [u8]){
+    |                      ^^^ help: if this is intentional, prefix it with an underscore: `_mem`
+
+warning: unused variable: `mem`
+   --> src/cpu/mod.rs:356:22
+    |
+356 |     fn cmc(&mut self,mem:&mut [u8]){
+    |                      ^^^ help: if this is intentional, prefix it with an underscore: `_mem`
+
+warning: unused variable: `mem`
+   --> src/cpu/mod.rs:362:22
+    |
+362 |     fn stc(&mut self,mem:&mut [u8]){
+    |                      ^^^ help: if this is intentional, prefix it with an underscore: `_mem`
+
+warning: unused variable: `mem`
+   --> src/cpu/mod.rs:395:22
+    |
+395 |     fn rst(&mut self,mem:&mut [u8]){panic!("")}
+    |                      ^^^ help: if this is intentional, prefix it with an underscore: `_mem`
+
+warning: unused variable: `mem`
+   --> src/cpu/mod.rs:396:23
+    |
+396 |     fn pchl(&mut self,mem:&mut [u8]){
+    |                       ^^^ help: if this is intentional, prefix it with an underscore: `_mem`
+
+warning: unused variable: `mem`
+   --> src/cpu/mod.rs:416:23
+    |
+416 |     fn sphl(&mut self,mem:&mut [u8]){
+    |                       ^^^ help: if this is intentional, prefix it with an underscore: `_mem`
+
+warning: unused variable: `mem`
+   --> src/cpu/mod.rs:421:23
+    |
+421 |     fn r#in(&mut self,mem:&mut [u8]){panic!("")}
+    |                       ^^^ help: if this is intentional, prefix it with an underscore: `_mem`
+
+warning: unused variable: `mem`
+   --> src/cpu/mod.rs:422:22
+    |
+422 |     fn out(&mut self,mem:&mut [u8]){panic!("")}
+    |                      ^^^ help: if this is intentional, prefix it with an underscore: `_mem`
+
+warning: unused variable: `mem`
+   --> src/cpu/mod.rs:423:21
+    |
+423 |     fn ei(&mut self,mem:&mut [u8]){panic!("")}
+    |                     ^^^ help: if this is intentional, prefix it with an underscore: `_mem`
+
+warning: unused variable: `mem`
+   --> src/cpu/mod.rs:424:21
+    |
+424 |     fn di(&mut self,mem:&mut [u8]){panic!("")}
+    |                     ^^^ help: if this is intentional, prefix it with an underscore: `_mem`
+
+warning: unused variable: `mem`
+   --> src/cpu/mod.rs:425:22
+    |
+425 |     fn hlt(&mut self,mem:&mut [u8]){panic!("")}
+    |                      ^^^ help: if this is intentional, prefix it with an underscore: `_mem`
+
+warning: method `Cccc` should have a snake case name
+   --> src/cpu/mod.rs:367:8
+    |
+367 |     fn Cccc(&mut self,mem:&mut [u8]){
+    |        ^^^^ help: convert the identifier to snake case (notice the capitalization): `cccc`
+    |
+    = note: `#[warn(non_snake_case)]` on by default
+
+warning: method `Rccc` should have a snake case name
+   --> src/cpu/mod.rs:385:8
+    |
+385 |     fn Rccc(&mut self,mem:&mut [u8]){
+    |        ^^^^ help: convert the identifier to snake case: `rccc`
+
+warning: structure field `A` should have a snake case name
+ --> src/cpu/regs/mod.rs:6:9
+  |
+6 |     pub A:u8,
+  |         ^ help: convert the identifier to snake case: `a`
+
+warning: structure field `B` should have a snake case name
+ --> src/cpu/regs/mod.rs:7:9
+  |
+7 |     pub B:u8,
+  |         ^ help: convert the identifier to snake case: `b`
+
+warning: structure field `C` should have a snake case name
+ --> src/cpu/regs/mod.rs:8:9
+  |
+8 |     pub C:u8,
+  |         ^ help: convert the identifier to snake case (notice the capitalization): `c`
+
+warning: structure field `D` should have a snake case name
+ --> src/cpu/regs/mod.rs:9:9
+  |
+9 |     pub D:u8,
+  |         ^ help: convert the identifier to snake case: `d`
+
+warning: structure field `E` should have a snake case name
+  --> src/cpu/regs/mod.rs:10:9
+   |
+10 |     pub E:u8,
+   |         ^ help: convert the identifier to snake case: `e`
+
+warning: structure field `H` should have a snake case name
+  --> src/cpu/regs/mod.rs:11:9
+   |
+11 |     pub H:u8,
+   |         ^ help: convert the identifier to snake case: `h`
+
+warning: structure field `L` should have a snake case name
+  --> src/cpu/regs/mod.rs:12:9
+   |
+12 |     pub L:u8,
+   |         ^ help: convert the identifier to snake case: `l`
+
+warning: structure field `SP` should have a snake case name
+  --> src/cpu/regs/mod.rs:13:9
+   |
+13 |     pub SP:u16,
+   |         ^^ help: convert the identifier to snake case: `sp`
+
+warning: structure field `PC` should have a snake case name
+  --> src/cpu/regs/mod.rs:14:9
+   |
+14 |     pub PC:u16,
+   |         ^^ help: convert the identifier to snake case: `pc`
+
+warning: structure field `F` should have a snake case name
+  --> src/cpu/regs/mod.rs:15:9
+   |
+15 |     pub F:Flags,
+   |         ^ help: convert the identifier to snake case (notice the capitalization): `f`
+
+warning: method `setRP` should have a snake case name
+  --> src/cpu/regs/mod.rs:18:12
+   |
+18 |     pub fn setRP(&mut self,val:u16,instr:u8){
+   |            ^^^^^ help: convert the identifier to snake case: `set_rp`
+
+warning: method `getRP` should have a snake case name
+  --> src/cpu/regs/mod.rs:35:12
+   |
+35 |     pub fn getRP(&self,instr:u8)->u16{
+   |            ^^^^^ help: convert the identifier to snake case: `get_rp`
+
+warning: method `getD` should have a snake case name
+  --> src/cpu/regs/mod.rs:48:12
+   |
+48 |     pub fn getD(&mut self,i:u8,mem:&[u8])->u8{
+   |            ^^^^ help: convert the identifier to snake case: `get_d`
+
+warning: method `setD` should have a snake case name
+  --> src/cpu/regs/mod.rs:61:12
+   |
+61 |     pub fn setD(&mut self,i:u8,mem:&mut [u8],val:u8){
+   |            ^^^^ help: convert the identifier to snake case: `set_d`
+
+warning: method `getS` should have a snake case name
+  --> src/cpu/regs/mod.rs:74:12
+   |
+74 |     pub fn getS(&mut self,i:u8,mem:&[u8])->u8{
+   |            ^^^^ help: convert the identifier to snake case: `get_s`
+
+warning: method `setS` should have a snake case name
+  --> src/cpu/regs/mod.rs:87:12
+   |
+87 |     pub fn setS(&mut self,i:u8,mem:&mut [u8],val:u8){
+   |            ^^^^ help: convert the identifier to snake case: `set_s`
+
+warning: `cpm8080` (lib) generated 38 warnings (run `cargo fix --lib -p cpm8080` to apply 20 suggestions)
+    Finished dev [unoptimized + debuginfo] target(s) in 0.00s
+     Running `target/debug/main tests/CPUTEST.COM`
+thread 'main' panicked at '', src/cpu/mod.rs:424:36
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+[pedrosf@pedro-550xda cpm8080]$ 

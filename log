@@ -1,0 +1,5 @@
+PC: 0100 MVI EA Registers { A: 2, B: 0, C: 0, D: 0, E: 0, H: 0, L: 0, SP: FFFF, PC: 102, F: Flags(0) }
+PC: 0102 INR 02 Registers { A: 3, B: 0, C: 0, D: 0, E: 0, H: 0, L: 0, SP: FFFF, PC: 103, F: Flags(0) }
+PC: 0103 Jccc 0000 Registers { A: 3, B: 0, C: 0, D: 0, E: 0, H: 0, L: 0, SP: FFFF, PC: 106, F: Flags(0) }
+PC: 0106 JMP 0109 Registers { A: 3, B: 0, C: 0, D: 0, E: 0, H: 0, L: 0, SP: FFFF, PC: 109, F: Flags(0) }
+PC: 0109 

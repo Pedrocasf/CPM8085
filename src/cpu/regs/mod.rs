@@ -15,7 +15,7 @@ pub struct Registers{
     pub F:Flags,
 }
 impl Registers{
-    pub fn setRP(&mut self,val:u16,instr:u8){
+    pub fn set_rp(&mut self,val:u16,instr:u8){
         match (instr & 0x30)>>4{
             0b00 => {self.B = (val >> 8) as u8;
                     self.C = val as u8},
@@ -32,7 +32,7 @@ impl Registers{
             _=>{},
         }
     }
-    pub fn getRP(&self,instr:u8)->u16{
+    pub fn get_rp(&self,instr:u8)->u16{
         match (instr & 0x30)>>4{
             0b00 => {(self.B as u16) << 8 | self.C as u16},
             0b01 => {(self.D as u16) << 8 | self.E as u16},
@@ -45,7 +45,7 @@ impl Registers{
             _=>panic!("Impossible RP get pattern"),
         }
     }
-    pub fn getD(&mut self,i:u8,mem:&[u8])->u8{
+    pub fn get_d(&mut self,i:u8,mem:&[u8])->u8{
         match (i & 0x38) >> 3{
             0 => self.B,
             1 => self.C,
@@ -53,12 +53,12 @@ impl Registers{
             3 => self.E,
             4 => self.H,
             5 => self.L,
-            6 => mem[self.getRP(0x20) as usize],
+            6 => mem[self.get_rp(0x20) as usize],
             7 => self.A,
             _ => panic!("Impossible DDD get pattern")
         }
     }
-    pub fn setD(&mut self,i:u8,mem:&mut [u8],val:u8){
+    pub fn set_d(&mut self,i:u8,mem:&mut [u8],val:u8){
         match (i & 0x38) >> 3{
             0 => self.B = val,
             1 => self.C = val,
@@ -66,12 +66,12 @@ impl Registers{
             3 => self.E = val,
             4 => self.H = val,
             5 => self.L = val,
-            6 => mem[self.getRP(0x20) as usize] = val,
+            6 => mem[self.get_rp(0x20) as usize] = val,
             7 => self.A = val,
             _ => {}
         };
     }
-    pub fn getS(&mut self,i:u8,mem:&[u8])->u8{
+    pub fn get_s(&mut self,i:u8,mem:&[u8])->u8{
         match i & 7{
             0 => self.B,
             1 => self.C,
@@ -79,12 +79,12 @@ impl Registers{
             3 => self.E,
             4 => self.H,
             5 => self.L,
-            6 => mem[self.getRP(0x20) as usize],
+            6 => mem[self.get_rp(0x20) as usize],
             7 => self.A,
             _ => panic!("Impossible SSS get pattern")
         }
     }
-    pub fn setS(&mut self,i:u8,mem:&mut [u8],val:u8){
+    pub fn set_s(&mut self,i:u8,mem:&mut [u8],val:u8){
         match i & 7{
             0 => self.B = val,
             1 => self.C = val,
@@ -92,7 +92,7 @@ impl Registers{
             3 => self.E = val,
             4 => self.H = val,
             5 => self.L = val,
-            6 => mem[self.getRP(0x20) as usize] = val,
+            6 => mem[self.get_rp(0x20) as usize] = val,
             7 => self.A = val,
             _ => {}
         };

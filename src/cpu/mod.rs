@@ -48,7 +48,7 @@ impl CPU{
     }
     fn lxi(&mut self,mem:&mut [u8]){
         let val = self.get_16(mem);
-        self.regs.setRP(val,self.i);
+        self.regs.set_rp(val,self.i);
         self.regs.PC+=3;
         print!("LXI {:04X}", val);
     }
@@ -87,7 +87,7 @@ impl CPU{
         print!("CALL {:04X}",addr);
     }
     fn push(&mut self,mem:&mut [u8]){
-        let rp = self.regs.getRP(self.i);
+        let rp = self.regs.get_rp(self.i);
         mem[self.regs.SP as usize -1] = (rp >> 8) as u8;
         mem[self.regs.SP as usize -2] = rp as u8;
         self.regs.SP-=2;
@@ -95,15 +95,15 @@ impl CPU{
         print!("PUSH {:04X}",rp )
     }
     fn xchg(&mut self,_mem:&mut [u8]){
-        let hl = self.regs.getRP(0x20);
-        let de = self.regs.getRP(0x10);
-        self.regs.setRP(hl,0x10);
-        self.regs.setRP(de,0x20);
+        let hl = self.regs.get_rp(0x20);
+        let de = self.regs.get_rp(0x10);
+        self.regs.set_rp(hl,0x10);
+        self.regs.set_rp(de,0x20);
         self.regs.PC += 1;
         print!("XCHG {:04X}", de);
     }
     fn mvi(&mut self,mem:&mut [u8]){
-        self.regs.setD(self.i, mem, mem[self.regs.PC as usize +1]);
+        self.regs.set_d(self.i, mem, mem[self.regs.PC as usize +1]);
         self.regs.PC+=2;
         print!("MVI {:02X}", mem[self.regs.PC as usize +1]);
     }
@@ -111,15 +111,15 @@ impl CPU{
         self.regs.PC+=1;
         print!("NOP {:04X}", self.regs.PC);
     }
-    fn fault(&mut self,mem:&mut [u8]){
+    fn fault(&mut self,_mem:&mut [u8]){
         panic!("regs:{:x?}, instr:{:08b}, {:02x}",self.regs, self.i,self.i)
     }
     fn syscall(&mut self,mem:&mut [u8]){
         CPM::syscall(&CPM(self.regs.C),self,mem);
     }
     fn mov(&mut self,mem:&mut [u8]){
-        let s = self.regs.getS(self.i, mem);
-        self.regs.setD(self.i, mem, s);
+        let s = self.regs.get_s(self.i, mem);
+        self.regs.set_d(self.i, mem, s);
         self.regs.PC+=1;
         print!("MOV {:02X}", s);
     }
@@ -138,32 +138,32 @@ impl CPU{
     fn lhld(&mut self,mem:&mut [u8]){
         let addr = self.get_16(mem) as usize;
         let val = (mem[addr+1] as u16) << 8 | mem[addr] as u16;
-        self.regs.setRP(val, 0x20);
+        self.regs.set_rp(val, 0x20);
         self.regs.PC+=3;
         print!("LHLD {:04X}", val);
     }
     fn shld(&mut self,mem:&mut [u8]){
         let addr = self.get_16(mem) as usize;
-        let val = self.regs.getRP(0x20);
+        let val = self.regs.get_rp(0x20);
         mem[addr] = val as u8;
         mem[addr+1] = (val >> 8) as u8;
         self.regs.PC+=3;
         print!("LHLD {:04X}", val);
     }
     fn ldax(&mut self,mem:&mut [u8]){
-        let rp = self.regs.getRP(self.i);
+        let rp = self.regs.get_rp(self.i);
         self.regs.A = mem[rp as usize];
         self.regs.PC+=1;
         print!("LDAX {:04X}", rp);
     }
     fn stax(&mut self,mem:&mut [u8]){
-        let rp = self.regs.getRP(self.i);
+        let rp = self.regs.get_rp(self.i);
         mem[rp as usize] = self.regs.A;
         self.regs.PC+=1;
         print!("STAX {:04X}", rp);
     }
     fn add(&mut self,mem:&mut [u8]){
-        let s = self.regs.getS(self.i, mem);
+        let s = self.regs.get_s(self.i, mem);
         let (a,v) = self.regs.A.overflowing_add(s);
         let h = ((self.regs.A & 0xF) + (s & 0xF))& 0x10 == 0x10;
         self.regs.set_flags(a, v, h);
@@ -172,7 +172,7 @@ impl CPU{
         print!("ADD {:02X}",s);
     }
     fn adc(&mut self,mem:&mut [u8]){
-        let s = self.regs.getS(self.i, mem);
+        let s = self.regs.get_s(self.i, mem);
         let (a0,v0) = self.regs.A.overflowing_add(s);
         let (a1,v1) = a0.overflowing_add(self.regs.F.get_carry() as u8);
         let h = ((self.regs.A & 0xF) + (s & 0xF) + self.regs.F.get_carry() as u8)& 0x10 == 0x10;
@@ -192,7 +192,7 @@ impl CPU{
         print!("ACI {:02X}",mem[self.regs.PC as usize +1]);
     }
     fn sub(&mut self,mem:&mut [u8]){
-        let s = self.regs.getS(self.i, mem);
+        let s = self.regs.get_s(self.i, mem);
         let (a,v) = self.regs.A.overflowing_sub(s);
         let h = (self.regs.A & 0xF).wrapping_sub(s & 0xF)& 0x10 == 0x10;
         self.regs.set_flags(a, v, h);
@@ -210,7 +210,7 @@ impl CPU{
         print!("SUI {:02X}",mem[self.regs.PC as usize +1]);
     }
     fn sbb(&mut self,mem:&mut [u8]){
-        let s = self.regs.getS(self.i, mem);
+        let s = self.regs.get_s(self.i, mem);
         let (a0,v0) = self.regs.A.overflowing_sub(s);
         let (a1,v1) = a0.overflowing_sub(self.regs.F.get_carry() as u8);
         let h = (self.regs.A & 0xF).wrapping_sub(s & 0xF).wrapping_sub(self.regs.F.get_carry() as u8)& 0x10 == 0x10;
@@ -230,40 +230,40 @@ impl CPU{
         print!("SBI {:02X}",mem[self.regs.PC as usize +1]);
     }
     fn inr(&mut self,mem:&mut [u8]){
-        let r = self.regs.getD(self.i, mem);
+        let r = self.regs.get_d(self.i, mem);
         let i = r.wrapping_add(1);
         let h = ((r & 0xF)+1)& 0x10 == 0x10;
-        self.regs.setD(self.i, mem, i);
+        self.regs.set_d(self.i, mem, i);
         self.regs.set_flags(r, false, h);
         self.regs.PC+=1;
         print!("INR {:02X}", r);
     }
     fn dcr(&mut self,mem:&mut [u8]){
-        let r = self.regs.getD(self.i, mem);
+        let r = self.regs.get_d(self.i, mem);
         let i = r.wrapping_sub(1);
         let h = ((r & 0xF).wrapping_sub(1))& 0x10 == 0x10;
-        self.regs.setD(self.i, mem, i);
+        self.regs.set_d(self.i, mem, i);
         self.regs.set_flags(r, false, h);
         self.regs.PC+=1;
         print!("DCR {:02X}", r);
     }
     fn inx(&mut self,mem:&mut [u8]){
-        let rp = self.regs.getRP(self.i);
-        self.regs.setRP(rp.wrapping_add(1), self.i);
+        let rp = self.regs.get_rp(self.i);
+        self.regs.set_rp(rp.wrapping_add(1), self.i);
         self.regs.PC+=1;
         print!("INX {:02x}", rp);
     }
     fn dcx(&mut self,mem:&mut [u8]){
-        let rp = self.regs.getRP(self.i);
-        self.regs.setRP(rp.wrapping_sub(1), self.i);
+        let rp = self.regs.get_rp(self.i);
+        self.regs.set_rp(rp.wrapping_sub(1), self.i);
         self.regs.PC+=1;
         print!("DCX {:02x}", rp);
     }
     fn dad(&mut self,mem:&mut [u8]){
-        let rp = self.regs.getRP(self.i);
-        let hl = self.regs.getRP(0x20);
+        let rp = self.regs.get_rp(self.i);
+        let hl = self.regs.get_rp(0x20);
         let (hl,v) = hl.overflowing_add(rp);
-        self.regs.setRP(hl,0x20);
+        self.regs.set_rp(hl,0x20);
         self.regs.F.set_carry(v);
         self.regs.PC+=1;
         print!("DAD {:04x}", hl);
@@ -272,14 +272,14 @@ impl CPU{
         panic!("DAA");
     }
     fn ana(&mut self,mem:&mut [u8]){
-        let s = self.regs.getS(self.i, mem);
+        let s = self.regs.get_s(self.i, mem);
         self.regs.A&=s;
         self.regs.set_flags(self.regs.A, false, false);
         self.regs.PC+=1;
         print!("ANA {:02X}",s);
     }
     fn ora(&mut self,mem:&mut [u8]){
-        let s = self.regs.getS(self.i, mem);
+        let s = self.regs.get_s(self.i, mem);
         self.regs.A|=s;
         self.regs.set_flags(self.regs.A, false, false);
         self.regs.PC+=1;
@@ -292,7 +292,7 @@ impl CPU{
         print!("ORI {:02X}",mem[self.regs.PC as usize +1]);
     }
     fn xra(&mut self,mem:&mut [u8]){
-        let s = self.regs.getS(self.i, mem);
+        let s = self.regs.get_s(self.i, mem);
         self.regs.A^=s;
         self.regs.set_flags(self.regs.A, false, false);
         self.regs.PC+=1;
@@ -305,7 +305,7 @@ impl CPU{
         print!("XRI {:02X}",mem[self.regs.PC as usize +1]);
     }
     fn cmp(&mut self,mem:&mut [u8]){
-        let s = self.regs.getS(self.i, mem);
+        let s = self.regs.get_s(self.i, mem);
         let h = (self.regs.A & 0xF).wrapping_sub(s)& 0x10 == 0x10;
         let (a, v) = self.regs.A.overflowing_sub(s);
         self.regs.set_flags(a,v,h);
@@ -395,11 +395,11 @@ impl CPU{
     fn rst(&mut self,mem:&mut [u8]){panic!("")}
     fn pchl(&mut self,mem:&mut [u8]){
         print!("PCHL {:04x}", self.regs.PC);
-        self.regs.PC = self.regs.getRP(0x20);
+        self.regs.PC = self.regs.get_rp(0x20);
     }
     fn pop(&mut self,mem:&mut [u8]){
         let val = self.pop_16(mem);
-        self.regs.setRP(val, self.i);
+        self.regs.set_rp(val, self.i);
         self.regs.PC+=1;
         print!("POP {:04x}", val);
     }
@@ -411,12 +411,12 @@ impl CPU{
         mem[self.regs.SP as usize]=l;
         mem[self.regs.SP as usize +1]=h;
         self.regs.PC+=1;
-        print!("XTHL {:04x}", self.regs.getRP(0x20));
+        print!("XTHL {:04x}", self.regs.get_rp(0x20));
     }
     fn sphl(&mut self,mem:&mut [u8]){
-        self.regs.SP = self.regs.getRP(0x20);
+        self.regs.SP = self.regs.get_rp(0x20);
         self.regs.PC+=1;
-        print!("SPHL {:04x}", self.regs.getRP(0x20));
+        print!("SPHL {:04x}", self.regs.get_rp(0x20));
     }
     fn r#in(&mut self,mem:&mut [u8]){panic!("")}
     fn out(&mut self,mem:&mut [u8]){panic!("")}

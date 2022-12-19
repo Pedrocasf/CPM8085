@@ -1,11 +1,9 @@
 use std::env;
 use std::fs;
 
-pub mod cpu;
-pub use cpu::CPU;
+pub use cpm8080::CPU;
 
-pub mod cpm;
-pub use cpm::CPM;
+pub use cpm8080::CPM;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
