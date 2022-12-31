@@ -1,6 +1,5 @@
 pub mod flags;
 use flags::Flags;
-use log::error;
 #[derive(Clone,Copy,Debug,Default)]
 pub struct Registers{
     pub a:u8,
@@ -42,7 +41,7 @@ impl Registers{
             }else{
                 self.sp
             },
-            _=> {error!("Impossible RP get pattern");panic!()},
+            _=> {panic!()},
         }
     }
     pub fn get_d(&mut self,i:u8,mem:&[u8])->u8{
@@ -55,7 +54,7 @@ impl Registers{
             5 => self.l,
             6 => mem[self.get_rp(0x20) as usize],
             7 => self.a,
-            _ =>  {error!("Impossible DDD get pattern");panic!()}
+            _ =>  {panic!()}
         }
     }
     pub fn set_d(&mut self,i:u8,mem:&mut [u8],val:u8){
@@ -68,7 +67,7 @@ impl Registers{
             5 => self.l = val,
             6 => mem[self.get_rp(0x20) as usize] = val,
             7 => self.a = val,
-            _ => {error!("Impossible DDD set pattern");panic!()}
+            _ => {}
         };
     }
     pub fn get_s(&mut self,i:u8,mem:&[u8])->u8{
@@ -81,7 +80,7 @@ impl Registers{
             5 => self.l,
             6 => mem[self.get_rp(0x20) as usize],
             7 => self.a,
-            _ =>  {error!("Impossible SSS get pattern");panic!()}
+            _ =>  {panic!()}
         }
     }
     pub fn set_s(&mut self,i:u8,mem:&mut [u8],val:u8){
@@ -114,7 +113,7 @@ impl Registers{
             5 => self.f.get_pairity(),
             6 => !self.f.get_sign(),
             7 => self.f.get_sign(),
-            _ =>  {error!("Impossible ccc pattern");panic!()},
+            _ =>  {panic!()},
         }
     }
 }
