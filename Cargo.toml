@@ -3,5 +3,18 @@ members = [
     "i8080_core",
     "cpm8080_core",
     "cpm8080_lib",
-    "cpm8080_bin"
+    "cpm8080_bin",
+    "cpm8080_avr"
 ]
+# Configure the build for minimal size - AVRs have very little program memory
+[profile.dev]
+panic = "abort"
+lto = true
+opt-level = "s"
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+debug = false
+lto = true
+opt-level = "s"

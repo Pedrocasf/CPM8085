@@ -2,8 +2,7 @@ pub use cpm8080_core::cpm::CPM;
 pub use i8080_core::cpu::CPU;
 pub mod sys;
 pub use sys::Sys;
-
-/*#[cfg(feature = "webp")]
+#[cfg(feature = "webp")]
 pub mod webp {
     extern crate wee_alloc;
     #[global_allocator]
@@ -37,4 +36,3 @@ pub fn run(x: Box<[u8]>)->Result<(), JsValue>{
     Ok(())
 }
 }
-*/

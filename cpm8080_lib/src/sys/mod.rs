@@ -2,10 +2,10 @@ use crate::{CPU, CPM};
 pub struct Sys{
     cpu:CPU,
     os:CPM,
-    mem:[u8;64*1024]
+    mem:[u8;0x10000]
 }
 impl Sys{
-    pub fn new(com_file:&[u8])-> Sys{
+    pub const fn new(com_file:&[u8])-> Sys{
         let com_file_len = com_file.len();
         let mut mem_arr = [0xfd;0x10000];
         mem_arr[5] = 8;
@@ -15,6 +15,9 @@ impl Sys{
             os:CPM(0),
             mem:mem_arr
         }
+    }
+    fn memory_map(&mut self){
+
     }
     pub fn run_instruction(&mut self){
         let m = &mut self.mem;

@@ -41,10 +41,6 @@ features = [
 [dev-dependencies]
 wasm-bindgen-test = "*"
 
-[profile.release]
-opt-level = "s"
-debug = false
-
 [features]
 default= ["webp"]
 webp = [
