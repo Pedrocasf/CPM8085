@@ -1,0 +1,3 @@
+[submodule "i8080_core"]
+	path = i8080_core
+	url = https://github.com/Pedrocasf/i8080_core.git
