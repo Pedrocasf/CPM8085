@@ -16,7 +16,6 @@ impl Sys {
             mem: mem_arr,
         }
     }
-    fn memory_map(&mut self) {}
     pub fn run_instruction(&mut self) {
         let m = &mut self.mem;
         self.cpu.next(m);
