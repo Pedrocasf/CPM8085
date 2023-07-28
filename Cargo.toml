@@ -6,7 +6,6 @@ members = [
     "cpm8080_bin",
     "cpm8080_avr"
 ]
-# Configure the build for minimal size - AVRs have very little program memory
 [profile.dev]
 panic = "abort"
 lto = true
