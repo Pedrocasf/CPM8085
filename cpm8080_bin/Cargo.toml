@@ -9,3 +9,7 @@ edition = "2021"
 cpm8080_lib = {path = "../cpm8080_lib"}
 log = {version = "0.4.17", default-features = false}
 simple_logger = "*"
+
+[features]
+default = ["log"]
+log = []  

@@ -4,7 +4,7 @@ use log::{debug, error};
 #[cfg(feature = "std")]
 use std::print;
 #[derive(Clone, Copy, Debug, Default)]
-pub struct CPM(pub u8);
+pub struct CPM(pub u8, pub u16);
 impl CPM {
     pub fn syscall(&self, cpu: &mut CPU, mem: &mut [u8]) {
         match self.0 {
@@ -18,10 +18,7 @@ impl CPM {
                     mem[cpu.get_regs().pc as usize],
                     mem[cpu.get_regs().pc as usize]
                 );
-                panic!(
-                    "Unimplemented CPM syscall: {:02x}",
-                    mem[cpu.get_regs().pc as usize],
-                );
+                panic!("Unimplemented CPM syscall: {:02x}", self.0);
             }
         }
         cpu.ret(mem);

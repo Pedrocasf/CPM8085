@@ -7,12 +7,12 @@ pub struct Sys {
 impl Sys {
     pub fn new(com_file: &[u8]) -> Sys {
         let com_file_len = com_file.len();
-        let mut mem_arr = [0xfd; 0x10000];
+        let mut mem_arr = [0x00; 0x10000];
         mem_arr[5] = 8;
         mem_arr[0x100..0x100 + com_file_len].copy_from_slice(&com_file[0..com_file_len]);
         Sys {
             cpu: CPU::new(),
-            os: CPM(0),
+            os: CPM(0, 0),
             mem: mem_arr,
         }
     }
@@ -22,6 +22,7 @@ impl Sys {
         if self.cpu.get_syscall() {
             let c_reg = self.cpu.get_regs().c;
             self.os.0 = c_reg;
+            self.os.1 = self.cpu.get_regs().get_rp(0x10);
             let cpu = &mut self.cpu;
             let mem = &mut self.mem;
             self.os.syscall(cpu, mem);
