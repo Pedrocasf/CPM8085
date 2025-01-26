@@ -1,3 +1,4 @@
+use std::ops::IndexMut;
 use i8080_core::cpu::CPU;
 #[cfg(feature = "log")]
 use log::{debug, error};
@@ -6,7 +7,7 @@ use std::print;
 #[derive(Clone, Copy, Debug, Default)]
 pub struct CPM(pub u8);
 impl CPM {
-    pub fn syscall(&self, cpu: &mut CPU, mem: &mut [u8]) {
+    pub fn syscall(&self, cpu: &mut CPU, mem: &mut dyn IndexMut<u16, Output=u8>) {
         match self.0 {
             0x09 => self.c_writestr(cpu, mem),
             0x02 => self.c_write(cpu, mem),
@@ -20,13 +21,13 @@ impl CPM {
                 );
                 panic!(
                     "Unimplemented CPM syscall: {:02x}",
-                    mem[cpu.get_regs().pc as usize],
+                    mem[cpu.get_regs().pc],
                 );
             }
         }
         cpu.ret(mem);
     }
-    fn c_writestr(&self, cpu: &mut CPU, mem: &[u8]) {
+    fn c_writestr(&self, cpu: &mut CPU, mem:&mut dyn IndexMut<u16, Output=u8>) {
         let off = cpu.get_regs().get_rp(0x10);
         let mut c: char = ' ';
         let mut count = 0;
@@ -35,7 +36,7 @@ impl CPM {
         #[cfg(feature = "std")]
         print!("\n");
         while c != '$' {
-            c = mem[off as usize + 3 + count] as char;
+            c = mem[off + 3 + count] as char;
             #[cfg(feature = "log")]
             debug!("{}", c);
             #[cfg(feature = "std")]
@@ -47,7 +48,7 @@ impl CPM {
         #[cfg(feature = "std")]
         print!("\n");
     }
-    fn c_write(&self, cpu: &mut CPU, _mem: &mut [u8]) {
+    fn c_write(&self, cpu: &mut CPU, _mem: &mut dyn IndexMut<u16, Output=u8>) {
         let c = cpu.get_regs().e as char;
         #[cfg(feature = "log")]
         debug!("{}", c);
